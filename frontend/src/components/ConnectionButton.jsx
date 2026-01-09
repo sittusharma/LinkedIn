@@ -1,13 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { authDataContext } from '../context/AuthContext'
+import { authDataContext } from '../context/AuthContext.jsx'
 import axios from 'axios'
 import io from "socket.io-client"
-import { userDataContext } from '../context/userContext'
+
+import { UserDataContext } from "./context/UserContext.jsx"
+
 import { useNavigate } from 'react-router-dom'
 const socket=io("https://linkedin-backend-wmse.onrender.com")
 function ConnectionButton({userId}) {
 let {serverUrl}=useContext(authDataContext)
-let {userData,setUserData}=useContext(userDataContext)
+let {userData,setUserData}=useContext(UserDataContext)
 let [status,setStatus]=useState("")
 let navigate=useNavigate()
     const handleSendConnection=async ()=>{
