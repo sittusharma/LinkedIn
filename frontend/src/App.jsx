@@ -1,15 +1,15 @@
 import React, { useContext } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import Signup from './pages/Signup'
-import Login from './pages/Login'
-import { userDataContext } from './context/userContext'
+import Home from './pages/Home.jsx'
+import Signup from './pages/Signup.jsx'
+import Login from './pages/Login.jsx'
+import { UserDataContext } from './context/UserContext.jsx'
 import Network from './pages/Network'
 import Profile from './pages/Profile'
 import Notification from './pages/Notification'
 
 function App() {
-  let {userData}=useContext(userDataContext)
+  let {userData}=useContext(UserDataContext)
   return (
    <Routes>
     <Route path='/' element={userData?<Home/>:<Navigate to="/login"/>}/>
