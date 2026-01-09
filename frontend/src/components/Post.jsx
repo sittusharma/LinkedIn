@@ -4,19 +4,19 @@ import moment from "moment"
 import { FaRegCommentDots } from "react-icons/fa";
 import { BiLike } from "react-icons/bi";
 import axios from 'axios';
-import { authDataContext } from '../context/AuthContext';
-import { userDataContext } from '../context/userContext';
+import { authDataContext } from '../context/AuthContext.jsx';
+import { UserDataContextt } from '../context/UserContext.jsx';
 import { BiSolidLike } from "react-icons/bi";
 import { LuSendHorizontal } from "react-icons/lu";
 import {io} from "socket.io-client"
-import ConnectionButton from './ConnectionButton';
+import ConnectionButton from './ConnectionButton.jsx';
 
 let socket=io("http://localhost:8000")
 function Post({ id, author, like, comment, description, image,createdAt }) {
     
     let [more,setMore]=useState(false)
   let {serverUrl}=useContext(authDataContext)
-  let {userData,setUserData,getPost,handleGetProfile}=useContext(userDataContext)
+  let {userData,setUserData,getPost,handleGetProfile}=useContext(UserDataContext)
   let [likes,setLikes]=useState(like)
   let [commentContent,setCommentContent]=useState("")
   let [comments,setComments]=useState(comment)
