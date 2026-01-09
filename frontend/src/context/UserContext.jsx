@@ -3,7 +3,7 @@ import { authDataContext } from './AuthContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import {io} from "socket.io-client"
-export const userDataContext=createContext()
+export const UserDataContext=createContext()
 
 
 export let socket=io("https://linkedin-backend-wmse.onrender.com")
