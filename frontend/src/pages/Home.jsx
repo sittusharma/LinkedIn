@@ -1,19 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import Nav from '../components/Nav'
+import Nav from '../components/Nav.jsx'
 import dp from "../assets/dp.webp"
 import { FiPlus } from "react-icons/fi";
 import { FiCamera } from "react-icons/fi";
-import { userDataContext } from '../context/userContext';
+import { UserDataContext } from '../context/UserContext.jsx';
 import { HiPencil } from "react-icons/hi2";
-import EditProfile from '../components/EditProfile';
+import EditProfile from '../components/EditProfile.jsx';
 import { RxCross1 } from "react-icons/rx";
 import { BsImage } from "react-icons/bs";
 import axios from 'axios';
-import { authDataContext } from '../context/AuthContext';
-import Post from '../components/Post';
+import { authDataContext } from '../context/AuthContext.jsx';
+import Post from '../components/Post.jsx';
 function Home() {
 
-  let {userData,setUserData,edit,setEdit,postData,setPostData,getPost,handleGetProfile}=useContext(userDataContext)
+  let {userData,setUserData,edit,setEdit,postData,setPostData,getPost,handleGetProfile}=useContext(UserDataContext)
 let {serverUrl}=useContext(authDataContext)
   let [frontendImage,setFrontendImage]=useState("")
   let [backendImage,setBackendImage]=useState("")
