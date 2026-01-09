@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import Nav from '../components/Nav'
+import Nav from '../components/Nav.jsx'
 import axios from 'axios'
-import { authDataContext } from '../context/AuthContext'
+import { authDataContext } from '../context/AuthContext.jsx'
 import dp from "../assets/dp.webp"
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { RxCrossCircled } from "react-icons/rx";
@@ -23,7 +23,8 @@ let [connections,setConnections]=useState([])
     const handleAcceptConnection=async (requestId)=>{
 try {
     let result = await axios.put(`${serverUrl}/api/connection/accept/${requestId}`,{},{withCredentials:true})
-    setConnections(connections.filter((con)=>con._id!=requestId))
+  setConnections(connections.filter((con)=>con._id !== requestId))
+
 } catch (error) {
     console.log(error)
 }
