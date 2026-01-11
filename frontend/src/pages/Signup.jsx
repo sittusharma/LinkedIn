@@ -1,156 +1,145 @@
-import React, { useContext, useState } from 'react'
-import logo from "../assets/logo.svg"
-import { useNavigate } from "react-router-dom"
-import { authDataContext } from '../context/AuthContext.jsx'
-import axios from "axios"
-import { UserDataContext } from '../context/UserContext.jsx'
+import React, { useContext, useState } from "react";
+import logo from "../assets/logo.svg";
+import { useNavigate } from "react-router-dom";
+import { authDataContext } from "../context/AuthContext.jsx";
+import axios from "axios";
 
 function Signup() {
-  const [show, setShow] = useState(false)
-  const { serverUrl } = useContext(authDataContext)
-  const { setUserData } = useContext(UserDataContext)
-  const navigate = useNavigate()
+  const { serverUrl } = useContext(authDataContext);
+  const navigate = useNavigate();
 
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [userName, setUserName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [err, setErr] = useState("")
-  const [success, setSuccess] = useState("")
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSignUp = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setErr("")
-    setSuccess("")
+    e.preventDefault();
+    setLoading(true);
+    setErr("");
+    setSuccess("");
 
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/signup`,
         { firstName, lastName, userName, email, password },
         { withCredentials: true }
-      )
+      );
 
-      setUserData(result.data)
-      setSuccess("You have successfully signed up!")
+      setSuccess("You have successfully signed up!");
+      setFirstName("");
+      setLastName("");
+      setUserName("");
+      setEmail("");
+      setPassword("");
 
-      // Clear form fields
-      setFirstName("")
-      setLastName("")
-      setUserName("")
-      setEmail("")
-      setPassword("")
-
-      // Redirect to login after 2 seconds
-      setTimeout(() => navigate("/login"), 2000)
+      // redirect to login after 1.5s
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      console.error("Signup Error:", error)
+      console.error("Signup error:", error);
       if (error.response) {
-        setErr(
-          error.response.data.message || error.response.data.error || JSON.stringify(error.response.data)
-        )
+        const data = error.response.data;
+        setErr(data.message || data.error || JSON.stringify(data));
       } else if (error.request) {
-        setErr("No response from server. Please check your network or server.")
+        setErr("No response from server. Please check your network.");
       } else {
-        setErr(error.message || "Something went wrong")
+        setErr(error.message || "Something went wrong");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className='w-full h-screen bg-white flex flex-col items-center gap-[10px]'>
-
-      {/* Logo */}
-      <div className='p-[30px] lg:p-[35px] w-full h-[80px] flex items-center'>
+    <div className="w-full h-screen bg-white flex flex-col items-center justify-start gap-4">
+      <div className="p-6 w-full h-[80px] flex items-center">
         <img src={logo} alt="logo" />
       </div>
 
-      {/* Signup Form */}
       <form
-        className='w-[90%] max-w-[400px] h-[600px] md:shadow-xl flex flex-col justify-center gap-[15px] p-[15px]'
+        className="w-[90%] max-w-[400px] md:shadow-xl flex flex-col justify-center gap-4 p-4"
         onSubmit={handleSignUp}
-        autoComplete="off"
       >
-        <h1 className='text-gray-800 text-[30px] font-semibold mb-[20px]'>Sign Up</h1>
+        <h1 className="text-gray-800 text-2xl font-semibold mb-6">Sign Up</h1>
 
         <input
           type="text"
-          placeholder='First Name'
+          placeholder="First Name"
           required
-          className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
+          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          autoComplete="given-name"
         />
 
         <input
           type="text"
-          placeholder='Last Name'
+          placeholder="Last Name"
           required
-          className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
+          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          autoComplete="family-name"
         />
 
         <input
           type="text"
-          placeholder='Username'
+          placeholder="Username"
           required
-          className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
+          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          autoComplete="username"
         />
 
         <input
           type="email"
-          placeholder='Email'
+          placeholder="Email"
           required
-          className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
+          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
         />
 
-        <div className='w-full h-[50px] border-2 border-gray-600 rounded-md relative'>
+        <div className="w-full h-12 border-2 border-gray-600 rounded-md relative">
           <input
-            type={show ? "text" : "password"}
-            placeholder='Password'
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
             required
-            className='w-full h-full border-none text-[18px] px-[20px] rounded-md'
+            className="w-full h-full border-none px-4 rounded-md"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
           />
           <span
-            className='absolute right-[20px] top-[10px] text-[#24b2ff] cursor-pointer font-semibold'
-            onClick={() => setShow(prev => !prev)}
+            className="absolute right-4 top-3 text-blue-500 cursor-pointer font-semibold"
+            onClick={() => setShowPassword((prev) => !prev)}
           >
-            {show ? "Hide" : "Show"}
+            {showPassword ? "Hide" : "Show"}
           </span>
         </div>
 
-        {err && <div className="text-center text-red-500">{err}</div>}
-        {success && <div className="text-center text-green-600">{success}</div>}
+        {err && <p className="text-center text-red-500 mt-2">{err}</p>}
+        {success && <p className="text-center text-green-600 mt-2">{success}</p>}
 
         <button
-          className='w-full h-[50px] rounded-full bg-[#24b2ff] mt-[20px] text-white disabled:opacity-50'
+          className="w-full h-12 rounded-full bg-blue-400 mt-6 text-white font-semibold"
           disabled={loading}
         >
           {loading ? "Loading..." : "Sign Up"}
         </button>
 
-        <p className='text-center cursor-pointer mt-[10px]' onClick={() => navigate("/login")}>
-          Already have an account? <span className='text-[#2a9bd8]'>Sign In</span>
+        <p
+          className="text-center mt-4 cursor-pointer"
+          onClick={() => navigate("/login")}
+        >
+          Already have an account?{" "}
+          <span className="text-blue-500 font-semibold">Sign In</span>
         </p>
       </form>
     </div>
-  )
+  );
 }
 
-export default Signup
+export default Signup;
