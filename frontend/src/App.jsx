@@ -1,26 +1,66 @@
-import React, { useContext } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
-import Home from './pages/Home.jsx'
-import Signup from './pages/Signup.jsx'
-import Login from './pages/Login.jsx'
-import { UserDataContext } from './context/UserContext.jsx'
-import Network from './pages/Network'
-import Profile from './pages/Profile'
-import Notification from './pages/Notification'
+import React, { useContext } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home.jsx';
+import Signup from './pages/Signup.jsx';
+import Login from './pages/Login.jsx';
+import Network from './pages/Network.jsx';
+import Profile from './pages/Profile.jsx';
+import Notification from './pages/Notification.jsx';
+import { UserDataContext } from './context/UserContext.jsx';
 
-function App() {
-  let {userData}=useContext(UserDataContext)
-  return (
-   <Routes>
-    <Route path='/' element={userData?<Home/>:<Navigate to="/login"/>}/>
-    <Route path='/signup' element={userData?<Navigate to="/"/>:<Signup/>}/>
-    <Route path='/login' element={userData?<Navigate to="/"/>:<Login/>}/>
-    <Route path='/network' element={userData?<Network/>:<Navigate to="/login"/>}/>
-    <Route path='/profile' element={userData?<Profile/>:<Navigate to="/login"/>}/>
-    <Route path='/notification' element={userData?<Notification/>:<Navigate to="/login"/>}/>
-  
-   </Routes>
-  )
+// ProtectedRoute: only accessible if user is logged in
+function ProtectedRoute({ children }) {
+  const { userData } = useContext(UserDataContext);
+  return userData ? children : <Navigate to="/login" />;
 }
 
-export default App
+// GuestRoute: only accessible if user is NOT logged in
+function GuestRoute({ children }) {
+  const { userData } = useContext(UserDataContext);
+  return !userData ? children : <Navigate to="/" />;
+}
+
+function App() {
+  return (
+    <Routes>
+      {/* Protected routes */}
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
+      } />
+      <Route path="/network" element={
+        <ProtectedRoute>
+          <Network />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      } />
+      <Route path="/notification" element={
+        <ProtectedRoute>
+          <Notification />
+        </ProtectedRoute>
+      } />
+
+      {/* Guest routes */}
+      <Route path="/signup" element={
+        <GuestRoute>
+          <Signup />
+        </GuestRoute>
+      } />
+      <Route path="/login" element={
+        <GuestRoute>
+          <Login />
+        </GuestRoute>
+      } />
+
+      {/* Catch-all route for unknown paths */}
+      <Route path="*" element={<div className="text-center mt-[100px] text-[24px]">404 - Page Not Found</div>} />
+    </Routes>
+  );
+}
+
+export default App;
