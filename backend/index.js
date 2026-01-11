@@ -22,7 +22,7 @@ export const io=new Server(server,{
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://linkedin-frontend-0n0t.onrender.com",
     credentials:true
 }))
 let port=process.env.PORT || 5000
