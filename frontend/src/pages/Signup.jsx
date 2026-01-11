@@ -22,11 +22,11 @@ function Signup() {
   const handleSignUp = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setErr("") // Clear previous error
+    setErr("") // Clear previous errors
 
     try {
       const result = await axios.post(
-        serverUrl + "/api/auth/signup",
+        `${serverUrl}/api/auth/signup`,
         { firstName, lastName, userName, email, password },
         { withCredentials: true }
       )
@@ -37,14 +37,24 @@ function Signup() {
       // Clear form fields after successful signup
       setFirstName("")
       setLastName("")
+      setUserName("")
       setEmail("")
       setPassword("")
-      setUserName("")
 
       navigate("/") // Redirect to home
     } catch (error) {
-      console.error("Signup Error:", error.response?.data || error)
-      setErr(error?.response?.data?.message || "Something went wrong")
+      console.error("Signup Error:", error)
+
+      if (error.response) {
+        // Backend responded with error
+        setErr(error.response.data.message || `Error: ${error.response.status}`)
+      } else if (error.request) {
+        // Request made but no response
+        setErr("No response from server. Please check your network or server status.")
+      } else {
+        // Something else went wrong
+        setErr(error.message || "Something went wrong")
+      }
     } finally {
       setLoading(false)
     }
@@ -59,12 +69,13 @@ function Signup() {
 
       {/* Signup Form */}
       <form
-        className='w-[90%] max-w-[400px] h-auto md:shadow-xl flex flex-col justify-center gap-[15px] p-[15px]'
+        className='w-[90%] max-w-[400px] md:shadow-xl flex flex-col justify-center gap-[15px] p-[15px]'
         onSubmit={handleSignUp}
         autoComplete="off"
       >
         <h1 className='text-gray-800 text-[30px] font-semibold mb-[20px]'>Sign Up</h1>
 
+        {/* First Name */}
         <input
           type="text"
           placeholder='First Name'
@@ -75,6 +86,7 @@ function Signup() {
           autoComplete="given-name"
         />
 
+        {/* Last Name */}
         <input
           type="text"
           placeholder='Last Name'
@@ -85,6 +97,7 @@ function Signup() {
           autoComplete="family-name"
         />
 
+        {/* Username */}
         <input
           type="text"
           placeholder='Username'
@@ -95,6 +108,7 @@ function Signup() {
           autoComplete="username"
         />
 
+        {/* Email */}
         <input
           type="email"
           placeholder='Email'
@@ -105,6 +119,7 @@ function Signup() {
           autoComplete="email"
         />
 
+        {/* Password */}
         <div className='w-full h-[50px] border-2 border-gray-600 rounded-md relative'>
           <input
             type={show ? "text" : "password"}
@@ -113,7 +128,7 @@ function Signup() {
             className='w-full h-full border-none text-[18px] px-[20px] rounded-md'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password" // prevents browser popup
+            autoComplete="new-password" // prevent browser save popup
           />
           <span
             className='absolute right-[20px] top-[10px] text-[#24b2ff] cursor-pointer font-semibold'
@@ -124,18 +139,25 @@ function Signup() {
         </div>
 
         {/* Error Message */}
-        {err && <p className='text-center text-red-500'>*{err}</p>}
+        {err && (
+          <div className="bg-red-100 text-red-700 p-2 rounded text-center">
+            {err}
+          </div>
+        )}
 
         {/* Submit Button */}
         <button
-          className='w-full h-[50px] rounded-full bg-[#24b2ff] mt-[20px] text-white'
+          className='w-full h-[50px] rounded-full bg-[#24b2ff] mt-[20px] text-white disabled:opacity-50'
           disabled={loading}
         >
           {loading ? "Loading..." : "Sign Up"}
         </button>
 
         {/* Link to Login */}
-        <p className='text-center cursor-pointer mt-[10px]' onClick={() => navigate("/login")}>
+        <p
+          className='text-center cursor-pointer mt-[10px]'
+          onClick={() => navigate("/login")}
+        >
           Already have an account? <span className='text-[#2a9bd8]'>Sign In</span>
         </p>
       </form>
