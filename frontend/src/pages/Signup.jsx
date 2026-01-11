@@ -8,16 +8,20 @@ function Signup() {
   const { serverUrl } = useContext(authDataContext);
   const navigate = useNavigate();
 
+  // Form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // UI states
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Handle signup
   const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -25,26 +29,29 @@ function Signup() {
     setSuccess("");
 
     try {
-      const result = await axios.post(
+      const response = await axios.post(
         `${serverUrl}/api/auth/signup`,
         { firstName, lastName, userName, email, password },
         { withCredentials: true }
       );
 
-      setSuccess("You have successfully signed up!");
+      // Signup successful
+      setSuccess(response.data.message);
+
+      // Clear form
       setFirstName("");
       setLastName("");
       setUserName("");
       setEmail("");
       setPassword("");
 
-      // redirect to login after 1.5s
+      // Redirect to login after 1.5 seconds
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       console.error("Signup error:", error);
+      // Show real backend error
       if (error.response) {
-        const data = error.response.data;
-        setErr(data.message || data.error || JSON.stringify(data));
+        setErr(error.response.data.message || "Signup failed");
       } else if (error.request) {
         setErr("No response from server. Please check your network.");
       } else {
@@ -57,16 +64,19 @@ function Signup() {
 
   return (
     <div className="w-full h-screen bg-white flex flex-col items-center justify-start gap-4">
+      {/* Logo */}
       <div className="p-6 w-full h-[80px] flex items-center">
         <img src={logo} alt="logo" />
       </div>
 
+      {/* Signup Form */}
       <form
         className="w-[90%] max-w-[400px] md:shadow-xl flex flex-col justify-center gap-4 p-4"
         onSubmit={handleSignUp}
       >
         <h1 className="text-gray-800 text-2xl font-semibold mb-6">Sign Up</h1>
 
+        {/* First Name */}
         <input
           type="text"
           placeholder="First Name"
@@ -76,6 +86,7 @@ function Signup() {
           onChange={(e) => setFirstName(e.target.value)}
         />
 
+        {/* Last Name */}
         <input
           type="text"
           placeholder="Last Name"
@@ -85,6 +96,7 @@ function Signup() {
           onChange={(e) => setLastName(e.target.value)}
         />
 
+        {/* Username */}
         <input
           type="text"
           placeholder="Username"
@@ -94,6 +106,7 @@ function Signup() {
           onChange={(e) => setUserName(e.target.value)}
         />
 
+        {/* Email */}
         <input
           type="email"
           placeholder="Email"
@@ -103,6 +116,7 @@ function Signup() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
+        {/* Password */}
         <div className="w-full h-12 border-2 border-gray-600 rounded-md relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -120,9 +134,13 @@ function Signup() {
           </span>
         </div>
 
+        {/* Error Message */}
         {err && <p className="text-center text-red-500 mt-2">{err}</p>}
+
+        {/* Success Message */}
         {success && <p className="text-center text-green-600 mt-2">{success}</p>}
 
+        {/* Submit Button */}
         <button
           className="w-full h-12 rounded-full bg-blue-400 mt-6 text-white font-semibold"
           disabled={loading}
@@ -130,6 +148,7 @@ function Signup() {
           {loading ? "Loading..." : "Sign Up"}
         </button>
 
+        {/* Redirect to Login */}
         <p
           className="text-center mt-4 cursor-pointer"
           onClick={() => navigate("/login")}
