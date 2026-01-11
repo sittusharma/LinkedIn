@@ -39,12 +39,10 @@ function Nav() {
     }
     try {
       const result = await axios.get(
-        `${serverUrl}/api/user/search?query=${encodeURIComponent(
-          searchInput
-        )}`,
+        `${serverUrl}/api/user/search?query=${encodeURIComponent(searchInput)}`,
         { withCredentials: true }
       );
-      setSearchData(result.data);
+      setSearchData(result.data || []);
     } catch (error) {
       setSearchData([]);
       console.log(error);
@@ -53,17 +51,17 @@ function Nav() {
 
   useEffect(() => {
     handleSearch();
-  }, [searchInput]);
+  }, [searchInput]); // logic unchanged
 
   return (
     <nav className="nav-wrapper">
-      {/* Left: logo / home */}
+      {/* Left */}
       <div className="nav-left" onClick={() => navigate("/")}>
         <img src={logo2} alt="Logo" className="nav-logo" />
         <TiHome className="nav-icon" />
       </div>
 
-      {/* Center: search */}
+      {/* Center */}
       <div className="nav-center">
         <div
           className={`nav-search ${activeSearch ? "nav-search-active" : ""}`}
@@ -73,43 +71,48 @@ function Nav() {
             type="text"
             value={searchInput}
             onFocus={() => setActiveSearch(true)}
-            onBlur={() => setActiveSearch(false)}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search users..."
           />
         </div>
 
         {activeSearch && searchData.length > 0 && (
-          <div className="nav-search-results">
+          <div
+            className="nav-search-results"
+            onMouseDown={(e) => e.preventDefault()}
+          >
             {searchData.map((user) => (
               <div
                 key={user._id}
                 className="nav-search-item"
-                onMouseDown={() => {
+                onClick={() => {
                   navigate(`/profile/${user._id}`);
                   setSearchInput("");
+                  setActiveSearch(false);
                 }}
               >
                 <img
-                  src={user.profilePic || dp}
-                  alt={user.name}
+                  src={user.profileImage || dp}
+                  alt={`${user.firstName || ""} ${user.lastName || ""}`}
                   className="nav-search-avatar"
                 />
-                <span>{user.name}</span>
+                <span>
+                  {user.firstName} {user.lastName}
+                </span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Right: actions */}
+      {/* Right */}
       <div className="nav-right">
         <IoNotificationsSharp className="nav-icon" />
 
         <div className="nav-user" onClick={() => setShowPopup((p) => !p)}>
           <img
-            src={userData?.profilePic || dp}
-            alt={userData?.name || "User"}
+            src={userData?.profileImage || dp}
+            alt={userData?.firstName || "User"}
             className="nav-avatar"
           />
         </div>
@@ -126,6 +129,7 @@ function Nav() {
               <FaUserGroup className="nav-icon" />
               <span>Profile</span>
             </button>
+
             <button className="nav-popup-item" onClick={handleSignOut}>
               <span>Sign out</span>
             </button>
