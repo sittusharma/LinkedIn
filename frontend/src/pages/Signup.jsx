@@ -6,7 +6,6 @@ import axios from "axios"
 import { UserDataContext } from '../context/UserContext'
 
 function Signup() {
-
   const [show, setShow] = useState(false)
   const { serverUrl } = useContext(authDataContext)
   const { setUserData } = useContext(UserDataContext)
@@ -23,6 +22,7 @@ function Signup() {
   const handleSignUp = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setErr("") // Clear previous error
 
     try {
       const result = await axios.post(
@@ -31,15 +31,19 @@ function Signup() {
         { withCredentials: true }
       )
 
+      console.log("Signup success:", result.data)
       setUserData(result.data)
-      navigate("/")
-      setErr("")
+
+      // Clear form fields after successful signup
       setFirstName("")
       setLastName("")
       setEmail("")
       setPassword("")
       setUserName("")
+
+      navigate("/") // Redirect to home
     } catch (error) {
+      console.error("Signup Error:", error.response?.data || error)
       setErr(error?.response?.data?.message || "Something went wrong")
     } finally {
       setLoading(false)
@@ -48,61 +52,68 @@ function Signup() {
 
   return (
     <div className='w-full h-screen bg-white flex flex-col items-center gap-[10px]'>
-
+      {/* Logo */}
       <div className='p-[30px] lg:p-[35px] w-full h-[80px] flex items-center'>
         <img src={logo} alt="logo" />
       </div>
 
+      {/* Signup Form */}
       <form
-        className='w-[90%] max-w-[400px] h-[600px] md:shadow-xl flex flex-col justify-center gap-[10px] p-[15px]'
+        className='w-[90%] max-w-[400px] h-auto md:shadow-xl flex flex-col justify-center gap-[15px] p-[15px]'
         onSubmit={handleSignUp}
+        autoComplete="off"
       >
-        <h1 className='text-gray-800 text-[30px] font-semibold mb-[30px]'>Sign Up</h1>
+        <h1 className='text-gray-800 text-[30px] font-semibold mb-[20px]'>Sign Up</h1>
 
         <input
           type="text"
-          placeholder='firstname'
+          placeholder='First Name'
           required
           className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
+          autoComplete="given-name"
         />
 
         <input
           type="text"
-          placeholder='lastname'
+          placeholder='Last Name'
           required
           className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
+          autoComplete="family-name"
         />
 
         <input
           type="text"
-          placeholder='userName'
+          placeholder='Username'
           required
           className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
+          autoComplete="username"
         />
 
         <input
           type="email"
-          placeholder='email'
+          placeholder='Email'
           required
           className='w-full h-[50px] border-2 border-gray-600 text-[18px] px-[20px] rounded-md'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
         />
 
         <div className='w-full h-[50px] border-2 border-gray-600 rounded-md relative'>
           <input
             type={show ? "text" : "password"}
-            placeholder='password'
+            placeholder='Password'
             required
             className='w-full h-full border-none text-[18px] px-[20px] rounded-md'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password" // prevents browser popup
           />
           <span
             className='absolute right-[20px] top-[10px] text-[#24b2ff] cursor-pointer font-semibold'
@@ -112,17 +123,20 @@ function Signup() {
           </span>
         </div>
 
+        {/* Error Message */}
         {err && <p className='text-center text-red-500'>*{err}</p>}
 
+        {/* Submit Button */}
         <button
-          className='w-full h-[50px] rounded-full bg-[#24b2ff] mt-[40px] text-white'
+          className='w-full h-[50px] rounded-full bg-[#24b2ff] mt-[20px] text-white'
           disabled={loading}
         >
           {loading ? "Loading..." : "Sign Up"}
         </button>
 
-        <p className='text-center cursor-pointer' onClick={() => navigate("/login")}>
-          Already have an account ? <span className='text-[#2a9bd8]'>Sign In</span>
+        {/* Link to Login */}
+        <p className='text-center cursor-pointer mt-[10px]' onClick={() => navigate("/login")}>
+          Already have an account? <span className='text-[#2a9bd8]'>Sign In</span>
         </p>
       </form>
     </div>
