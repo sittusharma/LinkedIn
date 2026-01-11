@@ -1,102 +1,123 @@
-import uploadOnCloudinary from "../config/cloudinary.js"
-import User from "../models/user.model.js"
+import uploadOnCloudinary from "../config/cloudinary.js";
+import User from "../models/user.model.js";
 
-export const getCurrentUser=async (req,res)=>{
-    try {
-        let id=req.userId  
-        const user=await User.findById(id).select("-password")
-        if(!user){
-            return res.status(400).json({message:"user does not found"})
-        }
-
-        return res.status(200).json(user)
-    } catch (error) {
-        console.log(error);
-        
-        return res.status(400).json({message:"get current user error"})
+// GET CURRENT USER
+export const getCurrentUser = async (req, res) => {
+  try {
+    const id = req.userId;
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("getCurrentUser error:", error);
+    return res.status(500).json({ message: "Failed to get current user" });
+  }
+};
 
+// UPDATE PROFILE
+export const updateProfile = async (req, res) => {
+  try {
+    const { firstName, lastName, userName, headline, location, gender } = req.body;
 
-export const updateProfile=async (req,res)=>{
-    try {
-       let {firstName,lastName,userName,headline,location,gender} =req.body
-       let skills=req.body.skills?JSON.parse(req.body.skills):[]
-       let education=req.body.education?JSON.parse(req.body.education):[]
-       let experience=req.body.experience?JSON.parse(req.body.experience):[]
-   let profileImage;
-   let coverImage
-   console.log(req.files)
-       if(req.files.profileImage){
-        profileImage=await uploadOnCloudinary(req.files.profileImage[0].path)
-       }
-       if(req.files.coverImage){
-        coverImage=await uploadOnCloudinary(req.files.coverImage[0].path)
-       }
+    const skills = req.body.skills ? JSON.parse(req.body.skills) : [];
+    const education = req.body.education ? JSON.parse(req.body.education) : [];
+    const experience = req.body.experience ? JSON.parse(req.body.experience) : [];
 
-       let user=await User.findByIdAndUpdate(req.userId,{
-        firstName,lastName,userName,headline,location,gender,skills,education,experience,profileImage,coverImage
-       },{new:true}).select("-password")
-       return res.status(200).json(user)
+    let profileImage;
+    let coverImage;
 
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({message:`update profile error ${error}`})
+    if (req.files?.profileImage?.[0]) {
+      const upload = await uploadOnCloudinary(req.files.profileImage[0].path);
+      profileImage = upload.url || upload; // make sure url is returned
     }
-}
 
-
-export const getprofile=async (req,res)=>{
-    try {
-        let {userName}=req.params
-        let user=await User.findOne({userName}).select("-password")
-        if(!user){
-            return res.status(400).json({message:"userName does not exist"})
-        }
-        return res.status(200).json(user)
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({message:`get profile error ${error}`})
+    if (req.files?.coverImage?.[0]) {
+      const upload = await uploadOnCloudinary(req.files.coverImage[0].path);
+      coverImage = upload.url || upload;
     }
-}
 
-export const search=async (req,res)=>{
-    try {
-        let {query}=req.query
-        if(!query){
-return res.status(400).json({message:"query is required"})
-        }
-        let users=await User.find({
-            $or:[
-                {firstName:{$regex:query,$options:"i"}},
-                {lastName:{$regex:query,$options:"i"}},
-                {userName:{$regex:query,$options:"i"}},
-                {skills:{$in:[query]}}
-            ]
-        })
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      {
+        firstName,
+        lastName,
+        userName,
+        headline,
+        location,
+        gender,
+        skills,
+        education,
+        experience,
+        ...(profileImage && { profileImage }),
+        ...(coverImage && { coverImage }),
+      },
+      { new: true }
+    ).select("-password");
 
-        return res.status(200).json(users)
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({message:`search error ${error}`})
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("updateProfile error:", error);
+    return res.status(500).json({ message: `Failed to update profile: ${error.message}` });
+  }
+};
+
+// GET PROFILE BY USERNAME
+export const getProfile = async (req, res) => {
+  try {
+    const { userName } = req.params;
+    const user = await User.findOne({ userName }).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("getProfile error:", error);
+    return res.status(500).json({ message: `Failed to get profile: ${error.message}` });
+  }
+};
 
-export const getSuggestedUser=async (req,res)=>{
-    try {
-        let currentUser=await User.findById(req.userId).select("connection")
+// SEARCH USERS
+export const search = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ message: "Query is required" });
 
-        let suggestedUsers=await User.find({
-            _id:{
-                $ne:currentUser,$nin:currentUser.connection
-            }
-           
-        }).select("-password")
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+        { userName: { $regex: query, $options: "i" } },
+        { skills: { $in: [query] } },
+      ],
+    }).select("-password");
 
-        return res.status(200).json(suggestedUsers)
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("search error:", error);
+    return res.status(500).json({ message: `Search failed: ${error.message}` });
+  }
+};
 
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({message:`suggestedUser error ${error}`})
+// GET SUGGESTED USERS
+export const getSuggestedUsers = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.userId).select("connection");
+    if (!currentUser) {
+      return res.status(404).json({ message: "Current user not found" });
     }
-}
+
+    const suggestedUsers = await User.find({
+      _id: {
+        $ne: req.userId, // FIXED
+        $nin: currentUser.connection || [],
+      },
+    }).select("-password");
+
+    return res.status(200).json(suggestedUsers);
+  } catch (error) {
+    console.error("getSuggestedUsers error:", error);
+    return res.status(500).json({ message: `Failed to get suggested users: ${error.message}` });
+  }
+};
