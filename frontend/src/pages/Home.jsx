@@ -10,15 +10,7 @@ import { authDataContext } from '../context/AuthContext.jsx'
 import Post from '../components/Post.jsx'
 
 function Home() {
-  const {
-    userData,
-    edit,
-    setEdit,
-    postData,
-    getPost,
-    handleGetProfile
-  } = useContext(UserDataContext)
-
+  const { userData, edit, setEdit, postData, getPost, handleGetProfile } = useContext(UserDataContext)
   const { serverUrl } = useContext(authDataContext)
 
   const [frontendImage, setFrontendImage] = useState("")
@@ -34,8 +26,7 @@ function Home() {
     const file = e.target.files[0]
     if (file) {
       setBackendImage(file)
-      const url = URL.createObjectURL(file)
-      setFrontendImage(url)
+      setFrontendImage(URL.createObjectURL(file))
     }
   }
 
@@ -46,13 +37,8 @@ function Home() {
       formdata.append("description", description)
       if (backendImage) formdata.append("image", backendImage)
 
-      await axios.post(
-        `${serverUrl}/api/post/create`,
-        formdata,
-        { withCredentials: true }
-      )
+      await axios.post(`${serverUrl}/api/post/create`, formdata, { withCredentials: true })
 
-      // Refresh posts
       getPost()
       setPosting(false)
       setUploadPost(false)
@@ -67,10 +53,7 @@ function Home() {
 
   const handleSuggestedUsers = async () => {
     try {
-      const result = await axios.get(
-        `${serverUrl}/api/user/suggestedusers`,
-        { withCredentials: true }
-      )
+      const result = await axios.get(`${serverUrl}/api/user/suggestedusers`, { withCredentials: true })
       setSuggestedUser(result.data || [])
     } catch (error) {
       console.error("Suggested Users Error:", error)
@@ -78,13 +61,8 @@ function Home() {
     }
   }
 
-  useEffect(() => {
-    handleSuggestedUsers()
-  }, [serverUrl])
-
-  useEffect(() => {
-    getPost()
-  }, [uploadPost, getPost])
+  useEffect(() => { handleSuggestedUsers() }, [serverUrl])
+  useEffect(() => { getPost() }, [uploadPost, getPost])
 
   if (!userData) return <div className="text-center mt-[100px]">Loading...</div>
 
@@ -95,18 +73,12 @@ function Home() {
 
       {/* LEFT PROFILE */}
       <div className='w-full lg:w-[25%] bg-white shadow-lg rounded-lg p-[10px] relative'>
-        <div
-          className='w-full h-[100px] bg-gray-400 rounded overflow-hidden flex items-center justify-center relative cursor-pointer'
-          onClick={() => setEdit(true)}
-        >
+        <div className='w-full h-[100px] bg-gray-400 rounded overflow-hidden flex items-center justify-center relative cursor-pointer' onClick={() => setEdit(true)}>
           <img src={userData.coverImage || ""} alt="Cover" className='w-full' />
           <FiCamera className='absolute right-[20px] top-[20px] w-[25px] h-[25px] text-white' />
         </div>
 
-        <div
-          className='w-[70px] h-[70px] rounded-full overflow-hidden absolute top-[65px] left-[35px] cursor-pointer'
-          onClick={() => setEdit(true)}
-        >
+        <div className='w-[70px] h-[70px] rounded-full overflow-hidden absolute top-[65px] left-[35px] cursor-pointer' onClick={() => setEdit(true)}>
           <img src={userData.profileImage || dp} alt="Profile" className='h-full' />
         </div>
 
@@ -116,36 +88,22 @@ function Home() {
           <div className='text-[16px] text-gray-500'>{userData.location || ""}</div>
         </div>
 
-        <button
-          className='w-full h-[40px] my-[20px] rounded-full border-2 border-[#2dc0ff] text-[#2dc0ff] flex items-center justify-center gap-[10px]'
-          onClick={() => setEdit(true)}
-        >
+        <button className='w-full h-[40px] my-[20px] rounded-full border-2 border-[#2dc0ff] text-[#2dc0ff] flex items-center justify-center gap-[10px]' onClick={() => setEdit(true)}>
           Edit Profile <HiPencil />
         </button>
       </div>
 
       {/* POSTS */}
       <div className='w-full lg:w-[50%] flex flex-col gap-[20px]'>
-        {postData?.length > 0 ? (
-          postData.map(post => <Post key={post._id} {...post} />)
-        ) : (
-          <div>No Posts Yet</div>
-        )}
+        {postData?.length > 0 ? postData.map(post => <Post key={post._id} {...post} />) : <div>No Posts Yet</div>}
       </div>
 
       {/* SUGGESTED USERS */}
       <div className='w-full lg:w-[25%] bg-white shadow-lg hidden lg:flex flex-col p-[20px]'>
         <h1 className='text-[20px] text-gray-600 font-semibold'>Suggested Users</h1>
-
-        {suggestedUser.length === 0 ? (
-          <div>No Suggested Users</div>
-        ) : (
+        {suggestedUser.length === 0 ? <div>No Suggested Users</div> :
           suggestedUser.map(su => (
-            <div
-              key={su._id}
-              className='flex items-center gap-[10px] mt-[10px] cursor-pointer hover:bg-gray-200 rounded-lg p-[5px]'
-              onClick={() => handleGetProfile(su.userName)}
-            >
+            <div key={su._id} className='flex items-center gap-[10px] mt-[10px] cursor-pointer hover:bg-gray-200 rounded-lg p-[5px]' onClick={() => handleGetProfile(su.userName)}>
               <img src={su.profileImage || dp} className='w-[40px] h-[40px] rounded-full' alt="User" />
               <div>
                 <div className='text-[19px] font-semibold'>{su.firstName} {su.lastName}</div>
@@ -153,7 +111,7 @@ function Home() {
               </div>
             </div>
           ))
-        )}
+        }
       </div>
     </div>
   )
