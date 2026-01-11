@@ -18,11 +18,13 @@ function Signup() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState("")
+  const [success, setSuccess] = useState("") // New state for success message
 
   const handleSignUp = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setErr("") // Clear previous errors
+    setErr("")
+    setSuccess("") // Clear previous messages
 
     try {
       const result = await axios.post(
@@ -34,25 +36,29 @@ function Signup() {
       console.log("Signup success:", result.data)
       setUserData(result.data)
 
-      // Clear form fields after successful signup
+      // Show success message
+      setSuccess("You have successfully signed up!")
+
+      // Clear form fields
       setFirstName("")
       setLastName("")
       setUserName("")
       setEmail("")
       setPassword("")
 
-      navigate("/") // Redirect to home
+      // Redirect to login after 2 seconds so user can see message
+      setTimeout(() => {
+        navigate("/login")
+      }, 2000)
+      
     } catch (error) {
       console.error("Signup Error:", error)
 
       if (error.response) {
-        // Backend responded with error
         setErr(error.response.data.message || `Error: ${error.response.status}`)
       } else if (error.request) {
-        // Request made but no response
         setErr("No response from server. Please check your network or server status.")
       } else {
-        // Something else went wrong
         setErr(error.message || "Something went wrong")
       }
     } finally {
@@ -128,7 +134,7 @@ function Signup() {
             className='w-full h-full border-none text-[18px] px-[20px] rounded-md'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password" // prevent browser save popup
+            autoComplete="new-password"
           />
           <span
             className='absolute right-[20px] top-[10px] text-[#24b2ff] cursor-pointer font-semibold'
@@ -142,6 +148,13 @@ function Signup() {
         {err && (
           <div className="bg-red-100 text-red-700 p-2 rounded text-center">
             {err}
+          </div>
+        )}
+
+        {/* Success Message */}
+        {success && (
+          <div className="bg-green-100 text-green-700 p-2 rounded text-center">
+            {success}
           </div>
         )}
 
