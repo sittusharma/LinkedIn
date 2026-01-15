@@ -1,319 +1,71 @@
-import React, { useContext, useState } from "react";
-import logo from "../assets/logo.svg";
-import { useNavigate } from "react-router-dom";
-import { authDataContext } from "../context/AuthContext.jsx";
-import axios from "axios";
-
+import React, { useContext, useState } from 'react'
+import logo from "../assets/logo.svg"
+import {useNavigate} from "react-router-dom"
+import { authDataContext } from '../context/AuthContext'
+import axios from "axios"
+import { UserDataContext } from '../context/UserContext'
 function Signup() {
-  const { serverUrl } = useContext(authDataContext);
-  const navigate = useNavigate();
+  let [show,setShow]=useState(false)
+  let {serverUrl}=useContext(authDataContext)
+  let {userData,setUserData}=useContext(UserDataContext)
+  let navigate=useNavigate()
+  let [firstName,setFirstName]=useState("")
+  let [lastName,setLastName]=useState("")
+  let [userName,setUserName]=useState("")
+  let [email,setEmail]=useState("")
+  let [password,setPassword]=useState("")
+  let [loading,setLoading]=useState(false)
+  let [err,setErr]=useState("")
 
-  // Form state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  // UI state
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErr("");      // ✅ Clear previous errors
-    setSuccess("");  // ✅ Clear previous success
-
+  const handleSignUp=async (e)=>{
+    e.preventDefault()
+    setLoading(true)
     try {
-      const response = await axios.post(
-        `${serverUrl}/api/auth/signup`,
-        { firstName, lastName, userName, email, password },
-        { withCredentials: true }
-      );
-
-      // Success
-      setSuccess(response.data.message); // Show "Signup successful"
-      setErr(""); // Make sure error is cleared
-
-      // Clear form
-      setFirstName("");
-      setLastName("");
-      setUserName("");
-      setEmail("");
-      setPassword("");
-
-      // Redirect to login after 1.5 seconds
-      setTimeout(() => {
-        setSuccess(""); // Clear success message before leaving
-        navigate("/login");
-      }, 1500);
+      let result = await axios.post(serverUrl+"/api/auth/signup",{
+firstName,
+lastName,
+userName,
+email,
+password
+      },{withCredentials:true})
+      console.log(result)
+      setUserData(result.data)
+      navigate("/")
+      setErr("")
+      setLoading(false)
+      setFirstName("")
+      setLastName("")
+      setEmail("")
+      setPassword("")
+      setUserName("")
     } catch (error) {
-      console.error(error);
-      setErr(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
-    } finally {
-      setLoading(false);
+      setErr(error.response.data.message)
+      setLoading(false)
     }
-  };
-
+  }
   return (
-    <div className="w-full h-screen bg-white flex flex-col items-center justify-start gap-4">
-      <div className="p-6 w-full h-[80px] flex items-center">
-        <img src={logo} alt="logo" />
-      </div>
-
-      <form
-        className="w-[90%] max-w-[400px] md:shadow-xl flex flex-col justify-center gap-4 p-4"
-        onSubmit={handleSignUp}
-      >
-        <h1 className="text-gray-800 text-2xl font-semibold mb-6">Sign Up</h1>
-
-        <input
-          type="text"
-          placeholder="First Name"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-
-        <input
-          type="text"
-          placeholder="Last Name"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-
-        <input
-          type="text"
-          placeholder="Username"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <div className="w-full h-12 border-2 border-gray-600 rounded-md relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            required
-            className="w-full h-full border-none px-4 rounded-md"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <span
-            className="absolute right-4 top-3 text-blue-500 cursor-pointer font-semibold"
-            onClick={() => setShowPassword((prev) => !prev)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </span>
-        </div>
-
-        {err && <p className="text-center text-red-500 mt-2">{err}</p>}
-        {success && <p className="text-center text-green-600 mt-2">{success}</p>}
-
-        <button
-          className="w-full h-12 rounded-full bg-blue-400 mt-6 text-white font-semibold"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Sign Up"}
-        </button>
-
-        <p
-          className="text-center mt-4 cursor-pointer"
-          onClick={() => {
-            setErr("");     // Clear error before navigating
-            setSuccess(""); // Clear success
-            navigate("/login");
-          }}
-        >
-          Already have an account?{" "}
-          <span className="text-blue-500 font-semibold">Sign In</span>
-        </p>
-      </form>
+    <div className='w-full h-screen bg-[white] flex flex-col items-center justify-start gap-[10px]'>
+   <div className='p-[30px] lg:p-[35px] w-full h-[80px] flex items-center' >
+    <img src={logo} alt="" />
+   </div>
+   <form className='w-[90%] max-w-[400px] h-[600px] md:shadow-xl flex flex-col justify-center  gap-[10px] p-[15px]' onSubmit={handleSignUp}>
+    <h1 className='text-gray-800 text-[30px] font-semibold mb-[30px]'>Sign Up</h1>
+    <input type="text" placeholder='firstname' required className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={firstName} onChange={(e)=>setFirstName(e.target.value)}/>
+    <input type="text" placeholder='lastname' required className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={lastName} onChange={(e)=>setLastName(e.target.value)}/>
+    <input type="text" placeholder='userName' required className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={userName} onChange={(e)=>setUserName(e.target.value)}/>
+    <input type="email" placeholder='email' required className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={email} onChange={(e)=>setEmail(e.target.value)}/>
+    <div className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px]  rounded-md relative'>
+    <input type={show?"text":"password"} placeholder='password' required className='w-full h-fullborder-none text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={password} onChange={(e)=>setPassword(e.target.value)}/>
+    <span className='absolute right-[20px] top-[10px] text-[#24b2ff] cursor-pointer font-semibold' onClick={()=>setShow(prev=>!prev)}>{show?"hidden":"show"}</span>
     </div>
-  );
+   {err && <p className='text-center text-red-500'>
+    *{err}
+    </p>}
+    <button className='w-[100%] h-[50px] rounded-full bg-[#24b2ff] mt-[40px] text-white' disabled={loading}>{loading?"Loading...":"Sign Up"}</button>
+    <p className='text-center cursor-pointer' onClick={()=>navigate("/login")}>Already have an account ? <span className='text-[#2a9bd8]' >Sign In</span></p>
+   </form>
+    </div>
+  )
 }
 
-export default Signup;
-import React, { useContext, useState } from "react";
-import logo from "../assets/logo.svg";
-import { useNavigate } from "react-router-dom";
-import { authDataContext } from "../context/AuthContext.jsx";
-import axios from "axios";
-
-function Signup() {
-  const { serverUrl } = useContext(authDataContext);
-  const navigate = useNavigate();
-
-  // Form fields
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  // UI states
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
-  const [success, setSuccess] = useState("");
-
-  // Handle signup
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErr("");
-    setSuccess("");
-
-    try {
-      const response = await axios.post(
-        `${serverUrl}/api/auth/signup`,
-        { firstName, lastName, userName, email, password },
-        { withCredentials: true }
-      );
-
-      // Signup successful
-      setSuccess(response.data.message);
-
-      // Clear form
-      setFirstName("");
-      setLastName("");
-      setUserName("");
-      setEmail("");
-      setPassword("");
-
-      // Redirect to login after 1.5 seconds
-      setTimeout(() => navigate("/login"), 1500);
-    } catch (error) {
-      console.error("Signup error:", error);
-      // Show real backend error
-      if (error.response) {
-        setErr(error.response.data.message || "Signup failed");
-      } else if (error.request) {
-        setErr("No response from server. Please check your network.");
-      } else {
-        setErr(error.message || "Something went wrong");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="w-full h-screen bg-white flex flex-col items-center justify-start gap-4">
-      {/* Logo */}
-      <div className="p-6 w-full h-[80px] flex items-center">
-        <img src={logo} alt="logo" />
-      </div>
-
-      {/* Signup Form */}
-      <form
-        className="w-[90%] max-w-[400px] md:shadow-xl flex flex-col justify-center gap-4 p-4"
-        onSubmit={handleSignUp}
-      >
-        <h1 className="text-gray-800 text-2xl font-semibold mb-6">Sign Up</h1>
-
-        {/* First Name */}
-        <input
-          type="text"
-          placeholder="First Name"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-
-        {/* Last Name */}
-        <input
-          type="text"
-          placeholder="Last Name"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-
-        {/* Username */}
-        <input
-          type="text"
-          placeholder="Username"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-
-        {/* Email */}
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        {/* Password */}
-        <div className="w-full h-12 border-2 border-gray-600 rounded-md relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            required
-            className="w-full h-full border-none px-4 rounded-md"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <span
-            className="absolute right-4 top-3 text-blue-500 cursor-pointer font-semibold"
-            onClick={() => setShowPassword((prev) => !prev)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </span>
-        </div>
-
-        {/* Error Message */}
-        {err && <p className="text-center text-red-500 mt-2">{err}</p>}
-
-        {/* Success Message */}
-        {success && <p className="text-center text-green-600 mt-2">{success}</p>}
-
-        {/* Submit Button */}
-        <button
-          className="w-full h-12 rounded-full bg-blue-400 mt-6 text-white font-semibold"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Sign Up"}
-        </button>
-
-        {/* Redirect to Login */}
-        <p
-          className="text-center mt-4 cursor-pointer"
-          onClick={() => navigate("/login")}
-        >
-          Already have an account?{" "}
-          <span className="text-blue-500 font-semibold">Sign In</span>
-        </p>
-      </form>
-    </div>
-  );
-}
-
-export default Signup;
+export default Signup
