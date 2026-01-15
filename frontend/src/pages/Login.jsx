@@ -1,107 +1,59 @@
-import React, { useContext, useState } from "react";
-import logo from "../assets/logo.svg";
-import { useNavigate } from "react-router-dom";
-import { authDataContext } from "../context/AuthContext.jsx";
-import { UserDataContext } from "../context/UserContext.jsx";
-import axios from "axios";
-
+import React, { useContext, useState } from 'react'
+import logo from "../assets/logo.svg"
+import {useNavigate} from "react-router-dom"
+import { authDataContext } from '../context/AuthContext.jsx'
+import axios from "axios"
+import { UserDataContext } from '../context/UserContext.jsx'
 function Login() {
-  const { serverUrl } = useContext(authDataContext);
-  const { setUserData } = useContext(UserDataContext);
-  const navigate = useNavigate();
+  let [show,setShow]=useState(false)
+  let {serverUrl}=useContext(authDataContext)
+  let {userData,setUserData}=useContext(UserDataContext)
+  let navigate=useNavigate()
+  let [email,setEmail]=useState("")
+  let [password,setPassword]=useState("")
+  let [loading,setLoading]=useState(false)
+  let [err,setErr]=useState("")
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
-
-  const handleSignIn = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErr("");
-
+  const handleSignIn=async (e)=>{
+    e.preventDefault()
+    setLoading(true)
     try {
-      const result = await axios.post(
-        `${serverUrl}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
-
-      setUserData(result.data);
-      navigate("/");
+      let result = await axios.post(serverUrl+"/api/auth/login",{
+email,
+password
+      },{withCredentials:true})
+      setUserData(result.data)
+      navigate("/")
+      setErr("")
+      setLoading(false)
+      setEmail("")
+      setPassword("")
     } catch (error) {
-      console.error("Login error:", error);
-      if (error.response) {
-        const data = error.response.data;
-        setErr(data.message || data.error || JSON.stringify(data));
-      } else if (error.request) {
-        setErr("No response from server. Please check your network.");
-      } else {
-        setErr(error.message || "Something went wrong");
-      }
-    } finally {
-      setLoading(false);
+      setErr(error.response.data.message)
+      setLoading(false)
     }
-  };
-
+  }
   return (
-    <div className="w-full h-screen bg-white flex flex-col items-center justify-start gap-4">
-      <div className="p-6 w-full h-[80px] flex items-center">
-        <img src={logo} alt="logo" />
-      </div>
-
-      <form
-        className="w-[90%] max-w-[400px] md:shadow-xl flex flex-col justify-center gap-4 p-4"
-        onSubmit={handleSignIn}
-      >
-        <h1 className="text-gray-800 text-2xl font-semibold mb-6">Sign In</h1>
-
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          className="w-full h-12 border-2 border-gray-600 px-4 rounded-md"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <div className="w-full h-12 border-2 border-gray-600 rounded-md relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            required
-            className="w-full h-full border-none px-4 rounded-md"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <span
-            className="absolute right-4 top-3 text-blue-500 cursor-pointer font-semibold"
-            onClick={() => setShowPassword((prev) => !prev)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </span>
-        </div>
-
-        {err && <p className="text-center text-red-500 mt-2">{err}</p>}
-
-        <button
-          className="w-full h-12 rounded-full bg-blue-400 mt-6 text-white font-semibold"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Sign In"}
-        </button>
-
-        <p
-          className="text-center mt-4 cursor-pointer"
-          onClick={() => navigate("/signup")}
-        >
-          Want to create a new account?{" "}
-          <span className="text-blue-500 font-semibold">Sign Up</span>
-        </p>
-      </form>
+    <div className='w-full h-screen bg-[white] flex flex-col items-center justify-start gap-[10px]'>
+   <div className='p-[30px] lg:p-[35px] w-full h-[80px] flex items-center' >
+    <img src={logo} alt="" />
+   </div>
+   <form className='w-[90%] max-w-[400px] h-[600px] md:shadow-xl flex flex-col justify-center  gap-[10px] p-[15px]' onSubmit={handleSignIn}>
+    <h1 className='text-gray-800 text-[30px] font-semibold mb-[30px]'>Sign In</h1>
+   
+    <input type="email" placeholder='email' required className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={email} onChange={(e)=>setEmail(e.target.value)}/>
+    <div className='w-[100%] h-[50px] border-2 border-gray-600 text-gray-800 text-[18px]  rounded-md relative'>
+    <input type={show?"text":"password"} placeholder='password' required className='w-full h-fullborder-none text-gray-800 text-[18px] px-[20px] py-[10px] rounded-md' value={password} onChange={(e)=>setPassword(e.target.value)}/>
+    <span className='absolute right-[20px] top-[10px] text-[#24b2ff] cursor-pointer font-semibold' onClick={()=>setShow(prev=>!prev)}>{show?"hidden":"show"}</span>
     </div>
-  );
+   {err && <p className='text-center text-red-500'>
+    *{err}
+    </p>}
+    <button className='w-[100%] h-[50px] rounded-full bg-[#24b2ff] mt-[40px] text-white' disabled={loading}>{loading?"Loading...":"Sign In"}</button>
+    <p className='text-center cursor-pointer' onClick={()=>navigate("/signup")}>want to create a new account ? <span className='text-[#2a9bd8]' >Sign Up</span></p>
+   </form>
+    </div>
+  )
 }
 
-export default Login;
+export default Login
