@@ -39,7 +39,7 @@ io.on("connection",(socket)=>{
  console.log(userSocketMap)
    })
    socket.on("disconnect",(socket)=>{
-    for (let [key, value] of userSocketMap.entries()) {
+    for  (let [key, value] of userSocketMap.entries()) {
         if (value === socket.id) {
             userSocketMap.delete(key);
         }
